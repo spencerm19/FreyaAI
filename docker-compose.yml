@@ -1,3 +1,5 @@
+version: '3.8'
+
 volumes:
   n8n_storage:
   ollama_storage:
@@ -224,10 +226,10 @@ services:
     command:
       - "-c"
       - "sleep 3; 
-         OLLAMA_HOST=ollama-cpu:11434 ollama pull qwen2.5:7b-instruct-q4_K_M && 
+         OLLAMA_HOST=ollama-cpu:11434 ollama pull qwen2.5-coder:7b && 
          OLLAMA_HOST=ollama-cpu:11434 ollama pull nomic-embed-text && 
          OLLAMA_HOST=ollama-cpu:11434 ollama pull smallthinker && 
-         OLLAMA_HOST=ollama-cpu:11434 ollama pull llama3-chatqa && 
+         OLLAMA_HOST=ollama-cpu:11434 ollama pull llama2-uncensored:7b && 
          OLLAMA_HOST=ollama-cpu:11434 ollama pull sadiq-bd/llama3.2-1b-uncensored"
     depends_on:
       - ollama-cpu
@@ -244,10 +246,10 @@ services:
     command:
       - "-c"
       - "sleep 3; 
-         OLLAMA_HOST=ollama-gpu:11434 ollama pull qwen2.5:7b-instruct-q4_K_M && 
+         OLLAMA_HOST=ollama-gpu:11434 ollama pull qwen2.5-coder:7b && 
          OLLAMA_HOST=ollama-gpu:11434 ollama pull nomic-embed-text && 
          OLLAMA_HOST=ollama-gpu:11434 ollama pull smallthinker && 
-         OLLAMA_HOST=ollama-gpu:11434 ollama pull llama3-chatqa && 
+         OLLAMA_HOST=ollama-gpu:11434 ollama pull llama2-uncensored:7b && 
          OLLAMA_HOST=ollama-gpu:11434 ollama pull sadiq-bd/llama3.2-1b-uncensored"
     depends_on:
       - ollama-gpu
@@ -264,10 +266,10 @@ services:
     command:
       - "-c"
       - "sleep 3; 
-         OLLAMA_HOST=ollama-gpu-amd:11434 ollama pull qwen2.5:7b-instruct-q4_K_M && 
+         OLLAMA_HOST=ollama-gpu-amd:11434 ollama pull qwen2.5-coder:7b && 
          OLLAMA_HOST=ollama-gpu-amd:11434 ollama pull nomic-embed-text && 
          OLLAMA_HOST=ollama-gpu-amd:11434 ollama pull smallthinker && 
-         OLLAMA_HOST=ollama-gpu-amd:11434 ollama pull llama3-chatqa && 
+         OLLAMA_HOST=ollama-gpu-amd:11434 ollama pull llama2-uncensored:7b && 
          OLLAMA_HOST=ollama-gpu-amd:11434 ollama pull sadiq-bd/llama3.2-1b-uncensored"
     depends_on:
       - ollama-gpu-amd
