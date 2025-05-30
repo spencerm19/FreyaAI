@@ -1,9 +1,7 @@
 {
-    # Global options
-    email admin@skyewire.duckdns.org
+    # Since we're using a .local domain, we'll skip the automatic HTTPS
+    auto_https off
     admin off
-    # Enable debug logging
-    debug
 }
 
 # Common settings for all routes
@@ -21,48 +19,43 @@
         # Remove server header
         -Server
     }
-    # Enable debug logging
-    log {
-        output stdout
-        format console
-        level DEBUG
-    }
-    # Use self-signed certificates
-    tls internal
 }
 
 # n8n workflow automation
-n8n.skyewire.duckdns.org {
+n8n.{$SERVER_DOMAIN} {
     import common
     reverse_proxy n8n:5678
 }
 
 # Open WebUI interface
-webui.skyewire.duckdns.org {
+webui.{$SERVER_DOMAIN} {
     import common
     reverse_proxy open-webui:8080
 }
 
 # Flowise
-flowise.skyewire.duckdns.org {
+flowise.{$SERVER_DOMAIN} {
     import common
     reverse_proxy flowise:3001
 }
 
 # Ollama API endpoints
-ollama.skyewire.duckdns.org {
+ollama.{$SERVER_DOMAIN} {
     import common
     
+    # Route based on the active profile
     @cpu {
         path /v1/*
+        header !Profile gpu-nvidia
+        header !Profile gpu-amd
     }
     @gpu-nvidia {
         path /v1/*
-        header Profile "gpu-nvidia"
+        header Profile gpu-nvidia
     }
     @gpu-amd {
         path /v1/*
-        header Profile "gpu-amd"
+        header Profile gpu-amd
     }
 
     reverse_proxy @cpu ollama-cpu:11434
@@ -74,19 +67,19 @@ ollama.skyewire.duckdns.org {
 }
 
 # Qdrant vector database
-qdrant.skyewire.duckdns.org {
+qdrant.{$SERVER_DOMAIN} {
     import common
     reverse_proxy qdrant:6333
 }
 
 # Supabase storage
-storage.skyewire.duckdns.org {
+storage.{$SERVER_DOMAIN} {
     import common
     reverse_proxy storage:5000
 }
 
 # Main domain redirect
-skyewire.duckdns.org {
+{$SERVER_DOMAIN} {
     import common
-    redir https://webui.skyewire.duckdns.org{uri}
+    redir https://webui.{$SERVER_DOMAIN}{uri}
 }

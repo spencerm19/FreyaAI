@@ -1,0 +1,36 @@
+FROM caddy:2-builder AS builder
+
+# Build Caddy with DNS providers
+RUN xcaddy build \
+    --with github.com/caddy-dns/duckdns
+
+FROM caddy:2
+
+# Copy custom binary
+COPY --from=builder /usr/bin/caddy /usr/bin/caddy
+
+# Update certificates
+RUN apt-get update && \
+    apt-get install -y ca-certificates && \
+    update-ca-certificates
+
+# Copy our certificates
+COPY cacert.pem /usr/local/share/ca-certificates/cacert.crt
+RUN update-ca-certificates
+
+# Copy the Caddyfile
+COPY Caddyfile /etc/caddy/Caddyfile
+
+# Set environment variables for certificate paths
+ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
+    CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
+    REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
+    NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt \
+    GODEBUG=x509ignoreCN=0
+
+# Expose ports
+EXPOSE 80 443
+
+# Set the entrypoint
+ENTRYPOINT ["caddy"]
+CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"] 

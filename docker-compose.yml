@@ -87,7 +87,10 @@ services:
       - N8N_HOST=${N8N_HOST:-0.0.0.0}
       - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
       - N8N_PORT=${N8N_PORT:-5678}
-      - N8N_EDITOR_BASE_URL=${N8N_EDITOR_BASE_URL:-http://localhost:5678}
+      # Crucial for Telegram: Set the public HTTPS URL for n8n
+      - WEBHOOK_URL=https://n8n.skyewire.duckdns.org/
+      # N8N_EDITOR_BASE_URL should also reflect the public URL for the editor
+      - N8N_EDITOR_BASE_URL=https://n8n.skyewire.duckdns.org/
 
   # Vector Database
   qdrant:
@@ -128,7 +131,7 @@ services:
       - OLLAMA_BASE_URLS=http://ollama-cpu:11434
       - WEBUI_AUTH=${WEBUI_AUTH:-true}
       - WEBUI_NAME=Freya AI
-      - WEBUI_URL=${WEBUI_URL:-http://localhost:3000}
+      - WEBUI_URL=${WEBUI_URL:-http://localhost:3000} # Consider updating this to https://webui.skyewire.duckdns.org
       - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
     volumes:
       - open-webui:/app/backend/data
@@ -148,7 +151,7 @@ services:
       - OLLAMA_BASE_URLS=http://ollama-gpu:11434,http://ollama-gpu-amd:11434
       - WEBUI_AUTH=${WEBUI_AUTH:-true}
       - WEBUI_NAME=Freya AI
-      - WEBUI_URL=${WEBUI_URL:-http://localhost:3000}
+      - WEBUI_URL=${WEBUI_URL:-http://localhost:3000} # Consider updating this to https://webui.skyewire.duckdns.org
       - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
     volumes:
       - open-webui:/app/backend/data
@@ -161,16 +164,23 @@ services:
   # Reverse Proxy
   caddy:
     container_name: caddy
-    image: docker.io/library/caddy:2-alpine
+    image: caddy:2
     restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./cacert.pem:/usr/local/share/ca-certificates/cacert.crt:ro
       - caddy-data:/data
       - caddy-config:/config
     environment:
+      - SSL_CERT_FILE=/usr/local/share/ca-certificates/cacert.crt
+      - CURL_CA_BUNDLE=/usr/local/share/ca-certificates/cacert.crt
+      - REQUESTS_CA_BUNDLE=/usr/local/share/ca-certificates/cacert.crt
+      - NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/cacert.crt
+      - GODEBUG=x509ignoreCN=0
+      - DUCKDNS_TOKEN=${DUCKDNS_TOKEN}
       - N8N_HOSTNAME=${N8N_HOSTNAME:-localhost}
       - WEBUI_HOSTNAME=${WEBUI_HOSTNAME:-localhost}
       - FLOWISE_HOSTNAME=${FLOWISE_HOSTNAME:-localhost}
@@ -274,4 +284,20 @@ services:
     depends_on:
       - ollama-gpu-amd
     networks:
-      - freya-net 
+      - freya-net
+
+  # DuckDNS Dynamic DNS Updater
+  duckdns:
+    image: linuxserver/duckdns:latest
+    container_name: duckdns
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Denver
+      - SUBDOMAINS=${DUCKDNS_SUBDOMAIN}
+      - TOKEN=${DUCKDNS_TOKEN}
+      - LOG_FILE=false
+    restart: unless-stopped
+    networks:
+      - freya-net
+
