@@ -1,17 +1,18 @@
 FROM caddy:2-builder AS builder
 
-# Build Caddy with DNS providers
+# Build Caddy with DNS providers and debug mode
 RUN xcaddy build \
-    --with github.com/caddy-dns/duckdns
+    --with github.com/caddy-dns/duckdns \
+    --with github.com/caddyserver/caddy/v2@latest
 
 FROM caddy:2
 
 # Copy custom binary
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy
 
-# Update certificates
+# Install necessary packages for debugging
 RUN apt-get update && \
-    apt-get install -y ca-certificates && \
+    apt-get install -y ca-certificates curl dnsutils && \
     update-ca-certificates
 
 # Copy our certificates
@@ -26,7 +27,7 @@ ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
     CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
     REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
     NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt \
-    GODEBUG=x509ignoreCN=0
+    GODEBUG=x509ignoreCN=0,netdns=go
 
 # Expose ports
 EXPOSE 80 443

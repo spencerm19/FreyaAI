@@ -2,8 +2,14 @@
     # Global options
     email admin@skyewire.duckdns.org
     admin off
-    # Enable debug logging
-    debug
+    # Set log level to INFO to reduce noise
+    log {
+        level INFO
+    }
+    # Global TLS configuration with DuckDNS
+    tls {
+        dns duckdns {env.DUCKDNS_TOKEN}
+    }
 }
 
 # Common settings for all routes
@@ -21,14 +27,13 @@
         # Remove server header
         -Server
     }
-    # Enable debug logging
+    # Enable access logging
     log {
         output stdout
         format console
-        level DEBUG
+        level INFO
     }
-    # Use self-signed certificates
-    tls internal
+    # No need for TLS config here as it's defined globally
 }
 
 # n8n workflow automation
@@ -52,7 +57,7 @@ flowise.skyewire.duckdns.org {
 # Ollama API endpoints
 ollama.skyewire.duckdns.org {
     import common
-    
+
     @cpu {
         path /v1/*
     }

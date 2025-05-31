@@ -164,7 +164,9 @@ services:
   # Reverse Proxy
   caddy:
     container_name: caddy
-    image: caddy:2
+    build:
+      context: .
+      dockerfile: Dockerfile.caddy
     restart: unless-stopped
     ports:
       - "80:80"
@@ -175,18 +177,15 @@ services:
       - caddy-data:/data
       - caddy-config:/config
     environment:
-      - SSL_CERT_FILE=/usr/local/share/ca-certificates/cacert.crt
-      - CURL_CA_BUNDLE=/usr/local/share/ca-certificates/cacert.crt
-      - REQUESTS_CA_BUNDLE=/usr/local/share/ca-certificates/cacert.crt
-      - NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/cacert.crt
-      - GODEBUG=x509ignoreCN=0
+      - SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+      - CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+      - REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+      - NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
+      - GODEBUG=x509ignoreCN=0,netdns=go
       - DUCKDNS_TOKEN=${DUCKDNS_TOKEN}
-      - N8N_HOSTNAME=${N8N_HOSTNAME:-localhost}
-      - WEBUI_HOSTNAME=${WEBUI_HOSTNAME:-localhost}
-      - FLOWISE_HOSTNAME=${FLOWISE_HOSTNAME:-localhost}
-      - OLLAMA_HOSTNAME=${OLLAMA_HOSTNAME:-localhost}
-      - SUPABASE_HOSTNAME=${SUPABASE_HOSTNAME:-localhost}
-      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL:-internal}
+      - CADDY_LOG_LEVEL=INFO
+      # Add external DNS servers
+      - "DNS_SERVER=1.1.1.1"
     networks:
       - freya-net
 
