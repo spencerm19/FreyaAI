@@ -10,9 +10,9 @@ FROM caddy:2
 # Copy custom binary
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy
 
-# Install necessary packages for debugging
-RUN apt-get update && \
-    apt-get install -y ca-certificates curl dnsutils && \
+# Install necessary packages for debugging (using Alpine's package manager)
+RUN apk update && \
+    apk add --no-cache ca-certificates curl bind-tools && \
     update-ca-certificates
 
 # Copy our certificates
