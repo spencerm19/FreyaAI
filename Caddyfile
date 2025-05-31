@@ -6,10 +6,6 @@
     log {
         level INFO
     }
-    # Global TLS configuration with DuckDNS
-    tls {
-        dns duckdns {env.DUCKDNS_TOKEN}
-    }
 }
 
 # Common settings for all routes
@@ -33,7 +29,10 @@
         format console
         level INFO
     }
-    # No need for TLS config here as it's defined globally
+    # TLS configuration with DuckDNS
+    tls {
+        dns duckdns {env.DUCKDNS_TOKEN}
+    }
 }
 
 # n8n workflow automation
