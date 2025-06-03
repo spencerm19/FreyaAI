@@ -1,4 +1,4 @@
-# Freya AI - Integrated AI Development Environment
+# Freya AI - No SSL
 
 This project combines several powerful AI and development tools into a single, easy-to-use Docker environment. It integrates:
 
@@ -10,7 +10,6 @@ This project combines several powerful AI and development tools into a single, e
 - Open WebUI (UI for Ollama)
 
 ## Prerequisites
-
 - Docker and Docker Compose
 - PowerShell 7+ (for Windows users)
 - NVIDIA Docker runtime (for GPU support with NVIDIA cards)
@@ -66,7 +65,6 @@ Key environment variables in `.env`:
 - `N8N_JWT_SECRET`: JWT secret for n8n
 - `STORAGE_REGION`: Region for S3-compatible storage
 - `STORAGE_S3_BUCKET`: Bucket name for S3-compatible storage
-- Various hostname configurations for different services
 
 ## GPU Support
 
